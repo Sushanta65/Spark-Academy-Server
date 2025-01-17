@@ -26,6 +26,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("SparkAcademy").collection("users");
+    const teacherRequestCollection = client.db("SparkAcademy").collection("teacher-request");
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -56,6 +57,14 @@ async function run() {
       const email = req.params.email;
       const query = {email}
       const result = await usersCollection.findOne(query)
+      res.send(result)
+    })
+
+
+    // Teacher Request api
+    app.post('/teacher-request', async(req, res) => {
+      const requestFormData = req.body;
+      const result = await teacherRequestCollection.insertOne(requestFormData)
       res.send(result)
     })
 
