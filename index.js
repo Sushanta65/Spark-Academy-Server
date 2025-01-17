@@ -73,17 +73,18 @@ async function run() {
       res.send(result)
     })
 
-    app.patch('/teacher-requests/approved/:id', async(req, res) => {
+    app.patch('/teacher-requests/:id', async(req, res) => {
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)}
       const updatedStatus = {
         $set: {
-          status: 'accepted'
+          status: req.body.status
         }
       }
       const result = await teacherRequestCollection.updateOne(filter, updatedStatus)
       res.send(result)
     })
+
 
     app.patch('/users/:email', async(req, res) => {
       
