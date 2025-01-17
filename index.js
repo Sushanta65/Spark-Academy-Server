@@ -68,6 +68,35 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/teacher-requests', async(req, res) => {
+      const result = await teacherRequestCollection.find().toArray()
+      res.send(result)
+    })
+
+    app.patch('/teacher-requests/approved/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updatedStatus = {
+        $set: {
+          status: 'accepted'
+        }
+      }
+      const result = await teacherRequestCollection.updateOne(filter, updatedStatus)
+      res.send(result)
+    })
+
+    app.patch('/users/:email', async(req, res) => {
+      
+      const filter = {email: req.params.email}
+      const updatedUserRole = {
+        $set: {
+          role: req.body.role
+        }
+      }
+      const result = await usersCollection.updateOne(filter, updatedUserRole)
+      res.send(result)
+    })
+
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
     });
