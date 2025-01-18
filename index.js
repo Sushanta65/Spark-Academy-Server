@@ -85,6 +85,23 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/teacher-request/:email', async(req, res) => {
+      const query = {email: req.params.email}
+      const result = await teacherRequestCollection.findOne(query)
+      res.send(result)
+    })
+
+    app.patch('/teacher-request/:email', async(req, res) => {
+      const filter = {email: req.params.email}
+      const updatedStatus = {
+        $set: {
+          status: req.body.status
+        }
+      }
+      const result = await teacherRequestCollection.updateOne(filter, updatedStatus)
+      res.send(result)
+    })
+
 
     app.patch('/users/:email', async(req, res) => {
       
