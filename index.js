@@ -27,6 +27,7 @@ async function run() {
 
     const usersCollection = client.db("SparkAcademy").collection("users");
     const teacherRequestCollection = client.db("SparkAcademy").collection("teacher-request");
+    const teacherClassesCollection = client.db("SparkAcademy").collection("teacher-classes");
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -114,6 +115,15 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updatedUserRole)
       res.send(result)
     })
+
+
+    //Teacher Class Related api
+
+    app.post('/teacher-classes', async(req, res) => {
+      const teacherClass = req.body
+      const result = await teacherClassesCollection.insertOne(teacherClass)
+      res.send(result)
+     })
 
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
