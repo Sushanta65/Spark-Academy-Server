@@ -136,6 +136,24 @@ async function run() {
       res.send(result)
      })
 
+     app.get('/my-classes/:email', async(req, res) => {
+      const filter = {email: req.params.email}
+      const result = await teacherClassesCollection.find(filter).toArray()
+      res.send(result)
+     })
+
+     app.patch('/teacher-classes/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updatedClassStatus = {
+        $set: {
+          status: req.body.status
+        }
+      }
+      const result = await teacherClassesCollection.updateOne(filter, updatedClassStatus)
+      res.send(result)
+     })
+
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
     });
