@@ -125,6 +125,17 @@ async function run() {
       res.send(result)
      })
 
+     app.get('/teacher-classes', async(req, res) => {
+      const result = await teacherClassesCollection.find().toArray()
+      res.send(result)
+     })
+
+     app.get('/teacher-classes/:email', async(req, res) => {
+      const filter = {email: req.params.email}
+      const result = await teacherClassesCollection.findOne(filter)
+      res.send(result)
+     })
+
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
     });
@@ -135,6 +146,7 @@ async function run() {
     // await client.close();
   }
 }
+
 run().catch(console.dir);
 
 app.listen(port, () => {
