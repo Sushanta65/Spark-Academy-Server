@@ -28,6 +28,7 @@ async function run() {
     const usersCollection = client.db("SparkAcademy").collection("users");
     const teacherRequestCollection = client.db("SparkAcademy").collection("teacher-request");
     const teacherClassesCollection = client.db("SparkAcademy").collection("teacher-classes");
+    const assignmentsCollection = client.db("SparkAcademy").collection("assignments");
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -161,6 +162,13 @@ async function run() {
       res.send(result)
      })
 
+      app.get('/class-details/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const result = await teacherClassesCollection.findOne(filter)
+      res.send(result)
+     })
+
      app.patch('/teacher-class-update/:id', async(req, res) => {
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)}
@@ -175,6 +183,25 @@ async function run() {
       const result = await teacherClassesCollection.updateOne(filter, updatedClass)
       res.send(result)
      })
+
+     app.delete('/delete-class/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const result = await teacherClassesCollection.deleteOne(query)
+      res.send(result)
+     })
+
+    //  Assignment Related Apis
+    app.post('/assignments', async(req, res) => {
+      const assignment = req.body
+      const result = await assignmentsCollection.insertOne(assignment)
+      res.send(result)
+    })
+
+    app.get('/assignments', async(req, res) => {
+      const result = await assignmentsCollection.find().toArray()
+      res.send(result)
+    })
 
 
     app.get("/", (req, res) => {
