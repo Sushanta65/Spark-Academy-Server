@@ -154,6 +154,29 @@ async function run() {
       res.send(result)
      })
 
+     app.get('/dashboard/my-class/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const result = await teacherClassesCollection.findOne(filter)
+      res.send(result)
+     })
+
+     app.patch('/teacher-class-update/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+      const updatedClass = {
+        $set: {
+          title: req.body.title,
+          description: req.body.description,
+          price: req.body.price,
+          image: req.body.image
+        }
+      }
+      const result = await teacherClassesCollection.updateOne(filter, updatedClass)
+      res.send(result)
+     })
+
+
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
     });
