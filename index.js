@@ -198,8 +198,9 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/assignments', async(req, res) => {
-      const result = await assignmentsCollection.find().toArray()
+    app.get('/assignments/:classId', async(req, res) => {
+      const filter = {classId: req.params.classId}
+      const result = await assignmentsCollection.find(filter).toArray()
       res.send(result)
     })
 
