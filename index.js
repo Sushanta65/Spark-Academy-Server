@@ -4,6 +4,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 dotenv.config();
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const app = express();
 const port = process.env.PORT || 5200;
@@ -23,12 +24,13 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const usersCollection = client.db("SparkAcademy").collection("users");
     const teacherRequestCollection = client.db("SparkAcademy").collection("teacher-request");
     const teacherClassesCollection = client.db("SparkAcademy").collection("teacher-classes");
     const assignmentsCollection = client.db("SparkAcademy").collection("assignments");
+    const paymentCollection = client.db("SparkAcademy").collection("payments");
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -118,7 +120,7 @@ async function run() {
     })
 
 
-    //Teacher Class Related api
+    //Teacher Class Related Apis
 
     app.post('/teacher-classes', async(req, res) => {
       const teacherClass = req.body
@@ -205,12 +207,34 @@ async function run() {
     })
 
 
+    // Payment Api
+    app.post('/create-payment-intent', async(req, res) => {
+      const {price} = req.body;
+        const amount = parseInt(price * 100)
+        
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount || 150 * 100,
+        currency: 'usd',
+        payment_method_types: ['card']
+      })
+
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+    })
+    
+app.post('/payments', async(req, res) => {
+  const payment = req.body
+  const result = await paymentCollection.insertOne(payment)
+  res.send(result)
+})
+
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
     });
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("You successfully connected to MongoDB!");
   } finally {
     // await client.close();
   }
