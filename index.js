@@ -31,6 +31,7 @@ async function run() {
     const teacherClassesCollection = client.db("SparkAcademy").collection("teacher-classes");
     const assignmentsCollection = client.db("SparkAcademy").collection("assignments");
     const paymentCollection = client.db("SparkAcademy").collection("payments");
+    const enrollCollection = client.db("SparkAcademy").collection('enroll-classes')
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -228,6 +229,26 @@ app.post('/payments', async(req, res) => {
   const result = await paymentCollection.insertOne(payment)
   res.send(result)
 })
+
+//Enroll Class
+app.post('/enrolled-classes', async(req, res) => {
+  const enrollInfo = req.body
+  const result = await enrollCollection.insertOne(enrollInfo)
+  res.send(result)
+})
+
+
+app.get('/enrolled-classes/:studentEmail', async (req, res) => {
+  const filter = {studentEmail: req.params.studentEmail}
+      const result = await enrollCollection.find(filter).toArray()
+      res.send(result)
+});
+
+app.get('/enrolled-class/:id', async (req, res) => {
+  const filter = {_id: req.params.id}
+      const result = await enrollCollection.findOne(filter)
+      res.send(result)
+});
 
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
