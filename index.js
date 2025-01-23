@@ -158,6 +158,23 @@ async function run() {
       res.send(result)
      })
 
+     app.patch('/teacher-class/:id', async(req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)}
+
+
+      const currentEnrolled = parseInt(req.body.enrolled, 10);
+      
+  const updatedClassEnrolled = {
+    $set: {
+      enrolled: currentEnrolled + 1,
+    },
+  };
+      const result = await teacherClassesCollection.updateOne(filter, updatedClassEnrolled)
+      res.send(result)
+     })
+     
+
      app.get('/dashboard/my-class/:id', async(req, res) => {
       const id = req.params.id;
       const filter = {_id: new ObjectId(id)}
@@ -233,6 +250,13 @@ app.post('/payments', async(req, res) => {
 //Enroll Class
 app.post('/enrolled-classes', async(req, res) => {
   const enrollInfo = req.body
+  const filter = { classId: req.body.classId, studentEmail: req.body.studentEmail };
+  const exist = await enrollCollection.findOne(filter);
+
+  if(exist){
+    res.send({message: 'already-enrolled'})
+    return
+  }
   const result = await enrollCollection.insertOne(enrollInfo)
   res.send(result)
 })
@@ -245,7 +269,8 @@ app.get('/enrolled-classes/:studentEmail', async (req, res) => {
 });
 
 app.get('/enrolled-class/:id', async (req, res) => {
-  const filter = {_id: req.params.id}
+
+  const filter = {_id:new ObjectId(req.params.id)}
       const result = await enrollCollection.findOne(filter)
       res.send(result)
 });
