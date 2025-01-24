@@ -32,6 +32,7 @@ async function run() {
     const assignmentsCollection = client.db("SparkAcademy").collection("assignments");
     const paymentCollection = client.db("SparkAcademy").collection("payments");
     const enrollCollection = client.db("SparkAcademy").collection('enroll-classes')
+    const submissionsCollection = client.db("SparkAcademy").collection('submissions')
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -274,6 +275,48 @@ app.get('/enrolled-class/:id', async (req, res) => {
       const result = await enrollCollection.findOne(filter)
       res.send(result)
 });
+
+
+// Assignment Submission Related Apis
+
+app.post('/submit-assignment', async(req, res) => {
+  const { assignmentId, studentEmail, assignmentSubmitLink } = req.body;
+
+  if (!assignmentId || !studentEmail || !assignmentSubmitLink) {
+    return res.status(400).send({ success: false, message: 'Missing data' });
+  }
+
+  const existingSubmission = await submissionsCollection.findOne({
+    assignmentId,
+    studentEmail,
+  });
+
+  if (existingSubmission) {
+    return res.status(400).send({ success: false, message: 'Already-submitted' });
+  }
+
+  const newSubmission = {
+    assignmentId,
+    studentEmail,
+    assignmentSubmitLink,
+    submittedAt: new Date(),
+  };
+
+  await submissionsCollection.insertOne(newSubmission);
+  const filter = {};
+  try {
+    filter._id = new ObjectId(assignmentId);
+  } catch (error) {
+    return res.status(400).send({ success: false, message: 'Invalid assignment ID' });
+  }
+  await assignmentsCollection.updateOne(
+    filter,
+    { $inc: { submission: 1 } }
+  );
+
+  res.send({ success: true, message: 'Submission-successful!' });
+  
+})
 
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
