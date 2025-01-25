@@ -33,6 +33,7 @@ async function run() {
     const paymentCollection = client.db("SparkAcademy").collection("payments");
     const enrollCollection = client.db("SparkAcademy").collection('enroll-classes')
     const submissionsCollection = client.db("SparkAcademy").collection('submissions')
+    const reviewsCollection = client.db("SparkAcademy").collection('reviews')
 
     app.post("/users", async (req, res) => {
       const user = req.body;
@@ -316,6 +317,40 @@ app.post('/submit-assignment', async(req, res) => {
 
   res.send({ success: true, message: 'Submission-successful!' });
   
+})
+
+// Reviews Related Apis
+
+app.post('/reviews', async(req, res) => {
+  const review = req.body;
+  const classId = req.body.classId;
+  const studentEmail = req.body.studentEmail;
+  const existReview = await reviewsCollection.findOne({classId, studentEmail})
+  if (existReview) {
+    return res.send({ success: false, message: 'review-exist' });
+  }
+  const result = await reviewsCollection.insertOne(review)
+  res.send(result)
+})
+
+app.get('/reviews', async(req, res) => {
+  const result = await reviewsCollection.find().toArray()
+  res.send(result)
+})
+
+
+// Statistics Api
+
+app.get('/statistics', async(req, res) => {
+  const totalUsers = (await usersCollection.find().toArray()).length;
+  const totalClasses = (await teacherClassesCollection.find().toArray()).length;
+  const totalEnrolled = (await enrollCollection.find().toArray()).length;
+  const statistics = {
+    totalUsers,
+    totalClasses,
+    totalEnrolled
+  }
+  res.send(statistics)
 })
 
     app.get("/", (req, res) => {
