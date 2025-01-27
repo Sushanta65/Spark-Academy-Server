@@ -2,6 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 dotenv.config();
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
@@ -35,6 +36,15 @@ async function run() {
     const submissionsCollection = client.db("SparkAcademy").collection('submissions')
     const reviewsCollection = client.db("SparkAcademy").collection('reviews')
 
+
+    // JWT Related Api
+
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.SECRET_TOKEN, {expiresIn: '1h'})
+      res.send({token})
+    })
+
     app.post("/users", async (req, res) => {
       const user = req.body;
       const query = {email: user.email}
@@ -47,7 +57,27 @@ async function run() {
       return res.send(result);
     });
 
-    app.get("/users", async (req, res) => {
+
+    //Middleware
+
+    const verifyToken = (req, res, next) => {
+
+      if(!req.headers.authorization){
+        res.status(401).send('forbbinden')
+      }
+      const token = req.headers.authorization.split(' ')[1]
+
+      jwt.verify(token, process.env.SECRET_TOKEN, (err, decoded) => {
+        if(err) {
+          res.status(401).send({message: 'forbidden access'})
+        }
+        req.decoded = decoded
+        next()
+      })
+     
+    }
+
+    app.get("/users",verifyToken, async (req, res) => {
       const users = await usersCollection.find().toArray();
       res.send(users);
     });
