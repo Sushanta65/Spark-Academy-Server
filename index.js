@@ -46,6 +46,8 @@ async function run() {
       .collection("submissions");
     const reviewsCollection = client.db("SparkAcademy").collection("reviews");
 
+    const blogsCollection = client.db("SparkAcademy").collection('blogsCollection');
+
     // JWT Related Api
 
     app.post("/jwt", (req, res) => {
@@ -322,7 +324,6 @@ async function run() {
       res.send(result)
     })
 
-    //Enroll Class
     app.post("/enrolled-classes", async (req, res) => {
       const enrollInfo = req.body;
       const filter = {
@@ -436,6 +437,18 @@ async function run() {
     app.get("/", (req, res) => {
       res.send("Your App is Running Properly.");
     });
+
+
+    app.post('/blogs', async(req, res) => {
+      const blog = req.body;
+      const result = await blogsCollection.insertOne(blog)
+      res.send(result)
+    })
+
+    app.get('/blogs', async (req, res) => {
+      const result = await blogsCollection.find().toArray()
+      res.send(result)
+    })
 
     // await client.db("admin").command({ ping: 1 });
     // console.log("You successfully connected to MongoDB!");
