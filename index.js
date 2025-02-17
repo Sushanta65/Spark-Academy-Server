@@ -26,7 +26,6 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // await client.connect();
-
     const usersCollection = client.db("SparkAcademy").collection("users");
     const teacherRequestCollection = client
       .db("SparkAcademy")
@@ -438,7 +437,6 @@ async function run() {
       res.send("Your App is Running Properly.");
     });
 
-
     app.post('/blogs', async(req, res) => {
       const blog = req.body;
       const result = await blogsCollection.insertOne(blog)
@@ -458,7 +456,6 @@ async function run() {
 }
 
 run().catch(console.dir);
-
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
